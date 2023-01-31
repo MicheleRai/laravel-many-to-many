@@ -26,7 +26,7 @@ class CategoryController extends Controller
      */
     public function create()
     {
-        //
+        return view('admin.categories.create');
     }
 
     /**
@@ -37,7 +37,16 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $data = $request->all();
+        // salvare nel database
+        $category = new Category;
+        $category->name =           $data['name'];
+        $category->slug =           $data['slug'];
+        $category->description =    $data['description'];
+        $category->save();
+
+        // ridirezionare
+        return redirect()->route('admin.categories.show', ['category' => $category]);
     }
 
     /**
@@ -48,8 +57,11 @@ class CategoryController extends Controller
      */
     public function show(Category $category)
     {
-
-        return view('admin.categories.show', compact('category'));
+        $posts =  $category->posts()->paginate(5);
+        return view('admin.categories.show', [
+            'category' => $category,
+            'posts' => $posts,
+        ]);
     }
 
     /**
@@ -60,7 +72,7 @@ class CategoryController extends Controller
      */
     public function edit(Category $category)
     {
-        //
+        return view('admin.categories.edit', compact('category'));
     }
 
     /**
