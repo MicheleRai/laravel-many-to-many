@@ -84,7 +84,16 @@ class CategoryController extends Controller
      */
     public function update(Request $request, Category $category)
     {
-        //
+        $data = $request->all();
+
+        // aggiornare la riga nel database
+        $category->name =           $data['name'];
+        $category->slug =           $data['slug'];
+        $category->description =    $data['description'];
+        $category->update();
+
+        // ridirezionare
+        return redirect()->route('admin.categories.show', ['category' => $category]);
     }
 
     /**
@@ -95,6 +104,16 @@ class CategoryController extends Controller
      */
     public function destroy(Category $category)
     {
-        //
+        // elimimare dal database la riga
+        $defaultCategory = Category::where('slug', 'uncategorized')->first();
+
+        foreach ($category->posts as $post) {
+            $post->category_id = $defaultCategory->id;
+            $post->update();
+        }
+        $category->delete();
+
+        // ridirezionare
+        return redirect()->route('admin.categories.index')->with('success_delete', $category);
     }
 }
